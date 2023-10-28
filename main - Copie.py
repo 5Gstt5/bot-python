@@ -109,8 +109,7 @@ async def bl(ctx, role_name):
                 await ctx.send(f"Une erreur s'est produite : {e}")
         else:
             await ctx.send("Le nom du rôle est manquant. Utilisation : *bl <nom_du_role>")
-    else:
-        await ctx.send("Vous n'avez pas l'autorisation d'utiliser cette commande.")
+
 
 
 
@@ -273,4 +272,4 @@ async def spam(ctx, user_id, message):
 
 
 
-bot.run("MTAxMDIzNTE1NDgyMTgxNjM3MQ.GeW-8j.aChgyCjsXfpsm5D7ERMWNHArcPs3QXHMCvmBlE")
+bot.run("TOKEN")
