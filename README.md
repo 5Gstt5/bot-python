@@ -1,4 +1,5 @@
 # bot-python
+python : 3.8.2
 Bot pour owners bot add dm_all etc
 
 
