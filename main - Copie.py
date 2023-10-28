@@ -116,7 +116,7 @@ async def bl(ctx, role_name):
 @bot.command()
 async def perm(ctx, target: discord.Member = None):
     if target is None:
-        target = ctx.author  # Par défaut, utilisez l'auteur du message comme cible
+        target = ctx.author  
 
     permissions = target.guild_permissions
 
