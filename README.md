@@ -10,3 +10,6 @@ comme ca :
 owners = [le tien , autres , autres]
 
 puis ton token a la fin 
+
+
+https://discord.gg/2SU3dtBX92
