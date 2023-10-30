@@ -332,45 +332,7 @@ async def unlock(ctx):
         
         await ctx.send("Le salon a été déverrouillé.")
 
-@bot.command()
-async def kick_bots(ctx):
-    if ctx.author.id in owners:
-        # Vérifiez si le bot a les autorisations d'expulser des membres
-        if ctx.guild.me.guild_permissions.kick_members:
-            # Demande de confirmation
-            confirmation_msg = await ctx.send("Êtes-vous sûr de vouloir expulser tous les bots du serveur ? (Oui/Non)")
 
-            def check(m):
-                return m.author == ctx.author and m.channel == ctx.channel
-
-            try:
-                response = await bot.wait_for("message", check=check, timeout=30)
-                await confirmation_msg.delete()  # Supprime le message de confirmation
-
-                if response.content.lower() == "oui":
-                    # Parcours tous les membres du serveur
-                    for member in ctx.guild.members:
-                        if member.bot:
-                            # Expulse le bot du serveur
-                            try:
-                                await member.kick(reason="Kicked all bots")
-                            except Exception as e:
-                                pass
-
-                    action_msg = await ctx.send("Tous les bots ont été expulsés du serveur.")
-                    await asyncio.sleep(5)  # Attendez 5 secondes
-                    await action_msg.delete()  # Supprime le message d'action
-                else:
-                    await ctx.send("L'opération a été annulée.")
-
-                await response.delete()  # Supprime la réponse
-
-            except asyncio.TimeoutError:
-                await ctx.send("Temps imparti pour la confirmation écoulé")
-
-        await ctx.message.delete()  # Supprime la commande
-    else:
-        await ctx.send("Vous n'avez pas l'autorisation d'utiliser cette commande.")
 
 
 
